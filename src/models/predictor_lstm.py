@@ -6,6 +6,7 @@ from tensorflow.keras.layers import LSTM, Dense, Dropout
 from sklearn.preprocessing import MinMaxScaler
 import logging
 from sqlalchemy import create_engine
+import matplotlib.pyplot as plt
 
 # Configuração do log
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
@@ -131,22 +132,22 @@ class LSTMPredictor:
 
         return predictions
 
-    def save_predictions_to_db(self, ticker, predictions):
+    def plot_predictions(self, predictions_dict):
         """
-        Salva as previsões futuras no banco de dados.
+        Plota um gráfico com as previsões de todas as ações.
         """
-        if predictions is None:
-            logging.warning(f"⚠️ Nenhuma previsão gerada para {ticker}.")
-            return
-
-        dates = pd.date_range(start=pd.Timestamp.today(), periods=len(predictions), freq='D')
-        df_predictions = pd.DataFrame({"date": dates, "ticker": ticker, "predicted_price": predictions.flatten()})
-
-        try:
-            df_predictions.to_sql("acoes_previsoes", self.db_engine, if_exists="append", index=False)
-            logging.info(f"✅ Previsões para {ticker} salvas no banco com sucesso!")
-        except Exception as e:
-            logging.error(f"❌ Erro ao salvar previsões no banco para {ticker}: {e}")
+        plt.figure(figsize=(12, 6))
+        for ticker, predictions in predictions_dict.items():
+            dates = pd.date_range(start=pd.Timestamp.today(), periods=len(predictions), freq='D')
+            plt.plot(dates, predictions, label=ticker)
+        
+        plt.title("Previsões para os próximos 10 dias")
+        plt.xlabel("Data")
+        plt.ylabel("Preço Previsto")
+        plt.legend(loc='upper left', bbox_to_anchor=(1, 1))
+        plt.xticks(rotation=45)
+        plt.grid()
+        plt.show()
 
 if __name__ == "__main__":
     predictor = LSTMPredictor()
@@ -154,10 +155,11 @@ if __name__ == "__main__":
     # Carregar todos os tickers do banco
     tickers = predictor.get_tickers_from_db()
 
+    predictions_dict = {}
+    
     for ticker in tickers:
         logging.info(f"📢 Iniciando treinamento para {ticker}")
 
-        # **Se não houver registros suficientes, já pula para o próximo!**
         if predictor.load_stock_data(ticker) is None or len(predictor.load_stock_data(ticker)) <= predictor.lookback:
             logging.warning(f"⏩ {ticker} não tem dados suficientes. Pulando...")
             continue
@@ -167,6 +169,8 @@ if __name__ == "__main__":
         logging.info(f"📈 Gerando previsões para {ticker}")
         future_prices = predictor.predict_future(ticker, days=10)
 
-        predictor.save_predictions_to_db(ticker, future_prices)
+        if future_prices is not None:
+            predictions_dict[ticker] = future_prices.flatten()
 
+    predictor.plot_predictions(predictions_dict)
     print("✅ Processo finalizado com sucesso!")

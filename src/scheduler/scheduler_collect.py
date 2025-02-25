@@ -50,9 +50,9 @@ def executar_coleta():
 
 # Agendar para rodar a cada 4 horas, começando às 00h
 schedule.every().day.at("00:00").do(executar_coleta)
-schedule.every(1).hour.do(executar_coleta)
+schedule.every(1).hours.do(executar_coleta)
 
-mensagem = "⏳ Agendador iniciado! Coleta rodará a cada 1 minuto..."
+mensagem = "⏳ Agendador iniciado! Coleta rodará a cada 1 hora..."
 salvar_log_mongo(mensagem)
 logging.info(mensagem)
 
