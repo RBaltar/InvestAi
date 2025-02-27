@@ -1,76 +1,113 @@
 # InvestAi
 
+## 📌 Sobre o Projeto
 Aplicação criada com o intuito de buscar, analisar e prever informações sobre a bolsa de valores, indicando boas ações para compra e venda.
 
-## 📌 Funcionalidades
+A aplicação realiza coleta de dados, treinamento de um modelo LSTM para previsões e disponibiliza uma API para consultas. Além disso, conta com um sistema de agendamento para manter os dados atualizados periodicamente.
 
-- **Coleta de Dados**: Utiliza Web Scraping na plataforma [Status Invest](https://statusinvest.com.br/) para capturar informações relevantes sobre ativos da B3.
-- **Armazenamento**: Os dados coletados são salvos em um banco **PostgreSQL**.
-- **Monitoramento Contínuo**: Um agendador executa a coleta a cada 4 horas automaticamente.
-- **Modelo de Previsão**: Utiliza **Redes Neurais LSTM** para prever os preços futuros das ações com base nos dados coletados.
-- **Visualização**: Os resultados são apresentados em gráficos para facilitar a análise.
+## 🚀 Tecnologias Utilizadas
+- **Linguagem:** Python
+- **Framework Web:** FastAPI
+- **Banco de Dados:** PostgreSQL e MongoDB
+- **Machine Learning:** TensorFlow e Scikit-Learn
+- **Coleta de Dados:** BeautifulSoup, Selenium, Requests
+- **Agendamento:** Schedule, GitHub Actions
+- **Hospedagem:** Render (Deploy automatizado)
 
 ## 📂 Estrutura do Projeto
 ```
+.github/                   # Configuração do GitHub Actions
 src/
-│── api/                   # Implementação de APIs futuras
-│── collectors/            # Scripts de coleta de dados
-│   │── data_collector.py  # Web Scraper para Status Invest
-│   │── selenium_scraper.py # Alternativa usando Selenium
-│── models/                # Modelos de Machine Learning
-│   │── predictor_lstm.py  # Implementação do modelo LSTM
-│── preprocessing/         # Pré-processamento de dados
-│── scheduler/             # Agendador de tarefas
-│   │── scheduler_collect.py # Executa a coleta automaticamente
-│── requirements.txt       # Dependências do projeto
-│── README.md              # Documentação do projeto
+├── api/                    # Implementação da API FastAPI
+│   ├── main.py             # Inicialização da API
+│   ├── routes/             # Rotas da API
+│   │   ├── tickers.py      # Endpoint para listagem de tickers
+│   │   ├── predictions.py  # Endpoint para previsões
+|   |   ├── history.py      # Endpoint para histórico de ticker específico
+|   |   ├── comparison.py   # Endpoint para comparar o valor do ticker previsto com o valor real
+├── collectors/             # Scraper de dados financeiros
+│   ├── data_collector.py   # Coleta de dados da StatusInvest
+│   ├── selenium_scraper.py # Alternativa via Selenium
+├── models/                 # Modelagem e treinamento do modelo LSTM
+│   ├── predictor_lstm.py   # Implementação do modelo LSTM
+├── preprocessing/          # Processamento dos dados antes do treinamento
+├── scheduler/              # Agendamento de coleta de dados
+│   ├── scheduler_collect.py # Agendador via Schedule
+├── README.md               # Documentação do projeto
+├── requirements.txt        # Dependências do projeto
 ```
 
-## ⚙️ Tecnologias Utilizadas
-- **Python** (Linguagem principal)
-- **BeautifulSoup** (Web Scraping)
-- **Selenium** (Alternativa para scraping dinâmico)
-- **PostgreSQL** (Banco de dados relacional)
-- **MongoDB** (Armazenamento de logs)
-- **TensorFlow/Keras** (Modelo LSTM para previsão)
-- **Pandas & NumPy** (Manipulação de dados)
-- **Matplotlib** (Visualização dos dados)
+## 🔥 Funcionalidades
+✅ **Coleta de Dados:**
+- Web Scraping da StatusInvest para obter dados financeiros.
+- Armazena os dados em um banco PostgreSQL para histórico e MongoDB para logs.
 
-## 🚀 Como Rodar o Projeto
+✅ **Treinamento do Modelo:**
+- Implementação de uma rede LSTM para prever valores futuros das ações.
+- Treina um modelo para cada ativo disponível no banco de dados.
 
-### 🔧 Instalação das Dependências
+✅ **Previsão e Comparação:**
+- Gera previsões para os próximos 10 dias.
+- Compara previsões passadas com valores reais para avaliar a precisão.
 
+✅ **API para Consultas:**
+- **`/tickers`** → Retorna a lista de ativos disponíveis no banco.
+- **`/predict/{ticker}`** → Retorna previsões futuras para um ativo específico.
+- **`/compare?start_date=YYYY-MM-DD&end_date=YYYY-MM-DD&tickers=PETR4,VALE3`** → Compara previsões com valores reais.
+
+✅ **Agendamento e Deploy Automático:**
+- **GitHub Actions** roda a coleta periodicamente.
+- **Render** mantém a API e o agendador rodando em produção.
+
+## 🔧 Como Rodar o Projeto
+### 1️⃣ Clonar o repositório
+```bash
+git clone https://github.com/seu-usuario/investai.git
+cd investai
+```
+
+### 2️⃣ Criar e ativar um ambiente virtual
+```bash
+python -m venv venv
+source venv/bin/activate  # Linux/macOS
+venv\Scripts\activate     # Windows
+```
+
+### 3️⃣ Instalar as dependências
 ```bash
 pip install -r requirements.txt
 ```
 
-### 📊 Executar a Coleta de Dados
-
-```bash
-python src/collectors/data_collector.py
+### 4️⃣ Configurar variáveis de ambiente
+Crie um arquivo `.env` com as credenciais do banco de dados:
+```
+DB_URL=postgresql://usuario:senha@localhost:5432/investimentos
+MONGO_URL=mongodb://localhost:27017/
 ```
 
-### ⏳ Agendar a Coleta Automática
-
+### 5️⃣ Rodar a API FastAPI
 ```bash
-python src/scheduler/scheduler_collect.py
+uvicorn api.main:app --reload
 ```
 
-### 📈 Treinar o Modelo de Previsão
+### 6️⃣ Testar a API
+Acesse `http://127.0.0.1:8000/docs` para visualizar e testar os endpoints via Swagger.
 
+### 7️⃣ Rodar o treinamento do modelo manualmente
 ```bash
 python src/models/predictor_lstm.py
 ```
 
-## 🌎 Deploy na Nuvem
-Para manter a aplicação rodando continuamente, recomendamos o uso do **Railway** ou **Render**. Veja os passos detalhados na documentação.
+### 8️⃣ Rodar o agendador manualmente
+```bash
+python src/scheduler/scheduler_collect.py
+```
 
 ## 📌 Próximos Passos
-- 🔄 Melhorar a precisão do modelo de previsão adicionando novos indicadores financeiros.
-- 📈 Criar um frontend para visualizar as previsões diretamente.
-- ☁️ Publicar a aplicação na nuvem para rodar de forma automática.
+- Melhorar a interface gráfica com um painel de visualização interativo.
+- Implementar caching para otimizar consultas na API.
+- Adicionar métricas de erro nas previsões.
+- Criar suporte para mais fontes de dados além da StatusInvest.
 
----
-
-**Criado por Rafael Baltar** 🚀
-
+## 📜 Licença
+Este projeto está sob a licença MIT. Sinta-se livre para contribuir e aprimorar! 🚀
