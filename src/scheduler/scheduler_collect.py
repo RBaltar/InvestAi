@@ -49,7 +49,7 @@ def executar_coleta():
         logging.error(mensagem)
 
 # Agendar para rodar a cada 4 horas, começando às 00h
-schedule.every().day.at("00:00").do(executar_coleta)
+schedule.every().day.at("10:00").do(executar_coleta)
 schedule.every(1).hours.do(executar_coleta)
 
 mensagem = "⏳ Agendador iniciado! Coleta rodará a cada 1 hora..."
