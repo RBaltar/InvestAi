@@ -1,0 +1,27 @@
+name: Run Data Collector
+
+on:
+  schedule:
+    - cron: "0 */1 * * *"  # Roda a cada 4 horas
+
+jobs:
+  run-collector:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clonar repositório
+        uses: actions/checkout@v4
+
+      - name: Configurar Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+
+      - name: Instalar dependências
+        run: |
+          pip install -r requirements.txt
+
+      - name: Executar Coleta de Dados
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          MONGO_URI: ${{ secrets.MONGO_URI }}
+        run: python src/scheduler/scheduler_collect.py
