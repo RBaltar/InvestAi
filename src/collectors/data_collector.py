@@ -1,4 +1,5 @@
 import requests
+import os
 import pandas as pd
 from sqlalchemy import create_engine
 import logging
@@ -9,8 +10,16 @@ from datetime import datetime
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 
 class DataCollector:
-    def __init__(self, db_url="postgresql://postgres:1234@localhost:5432/investimentos"):
+   import os
+from sqlalchemy import create_engine
+
+class DataCollector:
+    def __init__(self):
         """Inicializa a conexão com o banco de dados."""
+        db_url = os.getenv("POSTGRES_URI")  # Obtém a URL do PostgreSQL da variável de ambiente
+        if not db_url:
+            raise ValueError("❌ Erro: A variável de ambiente POSTGRES_URI não foi definida!")
+
         self.db_engine = create_engine(db_url)
         self.base_url = "https://statusinvest.com.br/acoes/"
         logging.info("✅ Conexão com o banco de dados estabelecida.")

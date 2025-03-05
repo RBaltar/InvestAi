@@ -1,3 +1,4 @@
+import os
 import schedule
 import time
 import subprocess
@@ -6,14 +7,15 @@ from pymongo import MongoClient
 from datetime import datetime
 
 # Configuração do MongoDB
-MONGO_URI = "mongodb://localhost:27017/"  # Se for remoto, coloque a URI do Atlas ou outro servidor
-DB_NAME = "invest_ai"
-COLLECTION_NAME = "logs_coleta"
+MONGO_URI = os.getenv("MONGO_URI")  # Pega a URI do ambiente
 
-# Conectar ao MongoDB
+if not MONGO_URI:
+    raise ValueError("❌ Erro: A variável de ambiente MONGO_URI não foi definida!")
+
 client = MongoClient(MONGO_URI)
-db = client[DB_NAME]
-collection = db[COLLECTION_NAME]
+db = client.get_database()
+
+print("✅ Conexão com MongoDB Atlas estabelecida com sucesso!")
 
 # Configuração do log
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
